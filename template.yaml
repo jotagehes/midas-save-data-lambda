@@ -4,7 +4,8 @@ Description: An AWS Serverless trigger-based application
 
 Globals:
   Function:
-    Timeout: 3
+    Timeout: 30
+    MemorySize: 512
     LoggingConfig:
       LogFormat: JSON
 
