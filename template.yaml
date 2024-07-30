@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: An AWS Serverless trigger-based application
 
@@ -23,7 +23,7 @@ Resources:
       Topics:
         - !Ref MidasSendScraperDataSNS
       PolicyDocument:
-        Version: '2012-10-17'
+        Version: "2012-10-17"
         Statement:
           - Effect: Allow
             Principal: "*"
@@ -49,7 +49,7 @@ Resources:
       Queues:
         - !Ref MidasSaveDataSQS
       PolicyDocument:
-        Version: '2012-10-17'
+        Version: "2012-10-17"
         Statement:
           - Effect: Allow
             Principal: "*"
@@ -63,12 +63,12 @@ Resources:
   MidasSaveDataLambdaFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: hello-world/
+      CodeUri: save-date/
       Handler: app.lambdaHandler
       Runtime: nodejs18.x
       FunctionName: MidasSaveDataLambdaFunction
       Architectures:
-      - x86_64
+        - x86_64
       Events:
         SQSEvent:
           Type: SQS
