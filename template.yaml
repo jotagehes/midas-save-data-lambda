@@ -10,6 +10,26 @@ Globals:
       LogFormat: JSON
 
 Resources:
+  MidasSendScraperDataSNS:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: "MidasSendScraperDataSNS.fifo"
+      FifoTopic: true
+      ContentBasedDeduplication: true
+
+  MidasSendScraperDataSNSPolicy:
+    Type: AWS::SNS::TopicPolicy
+    Properties:
+      Topics:
+        - !Ref MidasSendScraperDataSNS
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: "*"
+            Action: "SNS:Subscribe"
+            Resource: !Ref MidasSendScraperDataSNS
+
   MidasSaveDataSQS:
     Type: AWS::SQS::Queue
     Properties:
@@ -20,7 +40,7 @@ Resources:
     Type: AWS::SNS::Subscription
     Properties:
       Protocol: sqs
-      TopicArn: arn:aws:sns:us-east-1:381492147695:MidasSendScraperDataSNS.fifo
+      TopicArn: !Ref MidasSendScraperDataSNS
       Endpoint: !GetAtt MidasSaveDataSQS.Arn
 
   MidasSaveDataSQSQueuePolicy:
@@ -38,7 +58,7 @@ Resources:
             Resource: !GetAtt MidasSaveDataSQS.Arn
             Condition:
               ArnEquals:
-                aws:SourceArn: arn:aws:sns:us-east-1:381492147695:MidasSendScraperDataSNS.fifo
+                aws:SourceArn: !Ref MidasSendScraperDataSNS
 
   MidasSaveDataLambdaFunction:
     Type: AWS::Serverless::Function
@@ -55,5 +75,13 @@ Resources:
           Properties:
             Queue: !GetAtt MidasSaveDataSQS.Arn
 
-
-
+Outputs:
+  LambdaFunctionArn:
+    Description: "ARN of the Lambda Function"
+    Value: !GetAtt MidasSaveDataLambdaFunction.Arn
+  MidasSendScraperDataSNSArn:
+    Description: "ARN of the SNS Topic"
+    Value: !Ref MidasSendScraperDataSNS
+  MidasSaveDataSQSArn:
+    Description: "ARN of the SQS Queue"
+    Value: !GetAtt MidasSaveDataSQS.Arn
